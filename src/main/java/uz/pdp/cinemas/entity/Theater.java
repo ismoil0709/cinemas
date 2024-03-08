@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import uz.pdp.cinemas.util.annotations.Length;
+import org.hibernate.validator.constraints.Length;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,7 +23,7 @@ public class Theater{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Length(fieldName = "TheaterName", min = 3, max = 30)
+    @Length(min = 3, max = 30)
     private String name;
     private String location;
 }

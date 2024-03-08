@@ -7,7 +7,7 @@ import uz.pdp.cinemas.exception.AlreadyExistsException;
 import uz.pdp.cinemas.exception.NotFoundException;
 import uz.pdp.cinemas.repo.TheaterRepository;
 import uz.pdp.cinemas.service.TheaterService;
-import uz.pdp.cinemas.util.Validator;
+import uz.pdp.cinemas.util.Validations;
 
 import java.util.List;
 
@@ -35,8 +35,8 @@ public class TheaterImpl implements TheaterService {
 
         Theater updatedTheater = Theater.builder()
                 .id(existingTheater.getId())
-                .name(Validator.requireNonNullElse(theater.getName(), existingTheater.getName()))
-                .location(Validator.requireNonNullElse(theater.getLocation(), existingTheater.getLocation()))
+                .name(Validations.requireNonNullElse(theater.getName(), existingTheater.getName()))
+                .location(Validations.requireNonNullElse(theater.getLocation(), existingTheater.getLocation()))
                 .build();
 
         return theaterRepository.save(updatedTheater);
