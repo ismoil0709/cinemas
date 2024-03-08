@@ -1,4 +1,4 @@
-package uz.pdp.cinemas.repo;
+package uz.pdp.cinemas.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
