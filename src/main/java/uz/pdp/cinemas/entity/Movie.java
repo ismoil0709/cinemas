@@ -30,4 +30,5 @@ public class Movie {
     @ManyToMany
     private List<Genre> genres;
     private LocalTime duration;
+    private String imgPath;
 }
