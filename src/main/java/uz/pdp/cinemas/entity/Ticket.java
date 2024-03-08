@@ -25,6 +25,7 @@ public class Ticket {
     private Long id;
     private String seatNumber;
     private Double price;
+    private boolean isUpcoming;
     @OneToOne
     private Show show;
 }
