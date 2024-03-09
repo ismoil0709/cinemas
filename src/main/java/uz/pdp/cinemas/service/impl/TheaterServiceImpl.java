@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import uz.pdp.cinemas.entity.Theater;
 import uz.pdp.cinemas.exception.AlreadyExistsException;
 import uz.pdp.cinemas.exception.NotFoundException;
-import uz.pdp.cinemas.repo.TheaterRepository;
+import uz.pdp.cinemas.repository.TheaterRepository;
 import uz.pdp.cinemas.service.TheaterService;
 import uz.pdp.cinemas.util.Validations;
 
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class TheaterImpl implements TheaterService {
+public class TheaterServiceImpl implements TheaterService {
     private final TheaterRepository theaterRepository;
 
     @Override
