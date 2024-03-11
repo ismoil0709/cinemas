@@ -16,6 +16,7 @@ import uz.pdp.cinemas.service.UserService;
 import uz.pdp.cinemas.util.Validations;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +28,11 @@ public class UserServiceImpl implements UserService {
     public JwtDto register(UserRegisterDto userRegisterDto) {
         if (userRepository.findByEmail(userRegisterDto.getEmail()).isPresent())
             throw new AlreadyExistsException("User");
+        if (!Objects.equals(userRegisterDto.getPassword(), userRegisterDto.getConfirmPassword()))
+            throw new InvalidArgumentException("Password");
         return new JwtDto(jwtTokenProvider.generateToken(userRepository.save(
                 User.builder()
                         .id(userRegisterDto.getId())
-                        .name(userRegisterDto.getName())
                         .isAdmin(false)
                         .password(passwordEncoder.encode(userRegisterDto.getPassword()))
                         .build()

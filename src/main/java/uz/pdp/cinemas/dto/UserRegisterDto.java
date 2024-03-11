@@ -12,11 +12,9 @@ import lombok.Getter;
 public class UserRegisterDto {
     @NotNull
     private Long id;
-    @NotBlank
-    private String name;
     @NotBlank @Email
     private String email;
     @NotNull @Pattern(regexp = "")
     private String password;
-    private boolean isAdmin;
+    private String confirmPassword;
 }
