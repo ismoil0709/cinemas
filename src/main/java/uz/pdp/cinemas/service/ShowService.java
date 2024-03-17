@@ -6,6 +6,7 @@ import uz.pdp.cinemas.entity.Show;
 import java.util.List;
 
 @Service
+
 public interface ShowService {
     Show save(Show show);
     Show update(Show show);
