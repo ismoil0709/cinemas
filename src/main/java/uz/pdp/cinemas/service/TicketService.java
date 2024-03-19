@@ -11,4 +11,5 @@ public interface TicketService {
     Ticket getById(Long id);
     List<Ticket> getAll();
     List<Ticket> getByUpcoming(boolean upcoming);
+    void download(Long id);
 }

@@ -1,71 +1,60 @@
 package uz.pdp.cinemas.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import uz.pdp.cinemas.entity.Show;
-import uz.pdp.cinemas.exception.NotFoundException;
-import uz.pdp.cinemas.repository.ShowRepository;
-import uz.pdp.cinemas.service.impl.ShowServiceImpl;
+import uz.pdp.cinemas.service.ShowService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/show")
+@RequestMapping("${api.version}/show")
 @RequiredArgsConstructor
 public class ShowController {
-    private final ShowServiceImpl showServiceImpl;
-    private final ShowRepository showRepository;
-
+    private final ShowService showService;
     @PostMapping("/create")
-    public ResponseEntity<Show> createShow(Show show) {
-        Show show1 = showServiceImpl.save(show);
-        return ResponseEntity.status(HttpStatus.CREATED).body(show1);
+    public ResponseEntity<Show> create(@RequestBody @Valid Show show) {
+        return ResponseEntity.ok(showService.save(show));
     }
-
-    @GetMapping("/getId {id}")
-    public ResponseEntity<Show> get(@PathVariable Long id){
-        Show show = showServiceImpl.getById(id);
-        return ResponseEntity.ok(show);
+    @PutMapping("/update")
+    public ResponseEntity<Show> update(@RequestBody @Valid Show show){
+        return ResponseEntity.ok(showService.update(show));
     }
-
-    @GetMapping("/getName {name}")
-    public ResponseEntity<Show> getName(@PathVariable String name){
-        Show show = showServiceImpl.getByName(name);
-        return ResponseEntity.ok(show);
-    }
-
-    @GetMapping("/getAll")
-    public ResponseEntity<List<Show>> getAll(){
-        List<Show> shows = showServiceImpl.getALl();
-        return ResponseEntity.ok(shows);
-    }
-
-    @GetMapping("/getAllMovie {id}")
-    public ResponseEntity<List<Show>> getAllByMovie(@PathVariable Long id){
-        List<Show> shows = showServiceImpl.getAllByMovie(id);
-        return ResponseEntity.ok(shows);
-    }
-
-    @GetMapping("/getAllTheater {id}")
-    public ResponseEntity<List<Show>> getAllByTheater(@PathVariable Long id){
-        List<Show> shows = showServiceImpl.getAllByTheater(id);
-        return ResponseEntity.ok(shows);
-    }
-
-    @PutMapping("/update {id}")
-    public ResponseEntity<Show> update(@PathVariable Long id){
-        Show show = showRepository.findById(id).orElseThrow(() -> new NotFoundException("Show not found"));
-        Show updated = showServiceImpl.update(show);
-        return ResponseEntity.ok(updated);
-    }
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id){
-        showServiceImpl.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Show deleted successfully");
+    public ResponseEntity<?> delete(@PathVariable @NotNull Long id){
+        showService.delete(id);
+        return ResponseEntity.ok(Map.of("message","Successfully"));
     }
-
-
+    @GetMapping("/{id}")
+    public ResponseEntity<Show> getById(@PathVariable @NotNull Long id){
+        return ResponseEntity.ok(showService.getById(id));
+    }
+    @GetMapping("/name/{name}")
+    public ResponseEntity<Show> getByName(@PathVariable @NotBlank String name){
+        return ResponseEntity.ok(showService.getByName(name));
+    }
+    @GetMapping("/all")
+    public ResponseEntity<List<Show>> getAll(){
+        return ResponseEntity.ok(showService.getALl());
+    }
+    @GetMapping("/all/movieId/{id}")
+    public ResponseEntity<List<Show>> getAllByMovie(@PathVariable @NotNull Long id){
+        return ResponseEntity.ok(showService.getAllByMovie(id));
+    }
+    @GetMapping("/all/theaterId/{id}")
+    public ResponseEntity<List<Show>> getAllByTheater(@PathVariable @NotNull Long id){
+        return ResponseEntity.ok(showService.getAllByTheater(id));
+    }
 }

@@ -12,7 +12,7 @@ import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
-    @Value("${jwt.toke.secret.key}")
+    @Value("${jwt.token.secret.key}")
     private String key;
     @Value("${jwt.token.secret.expiry}")
     private String expiry;
