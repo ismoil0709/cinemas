@@ -10,16 +10,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
-import java.time.LocalTime;
+import java.time.Duration;
 import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 @Builder
 @Entity
 public class Movie {
@@ -29,6 +27,6 @@ public class Movie {
     private String title;
     @ManyToMany
     private List<Genre> genres;
-    private LocalTime duration;
+    private Duration duration;
     private String imgPath;
 }
