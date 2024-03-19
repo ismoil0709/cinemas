@@ -8,3 +8,12 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+admin:
+  email: ismoil@gmail.com
+api:
+  version: api/v1/cinemas
+jwt:
+  token:
+    secret:
+      key: cGVmc3NlZmpzb2VmaWpzZW9maWpzZW9mc2Vmc2plb2Zlc2ppb2VzZmpzZW9lZmlzZWpvZmpvaWpmc29l
+      expiry: 1400000000

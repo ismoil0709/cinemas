@@ -1,6 +1,8 @@
 package uz.pdp.cinemas.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uz.pdp.cinemas.dto.JwtDto;
@@ -19,24 +21,34 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final Cache cache;
+    public UserServiceImpl(UserRepository userRepository, JwtTokenProvider jwtTokenProvider, PasswordEncoder passwordEncoder, CacheManager cacheManager) {
+        this.userRepository = userRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.passwordEncoder = passwordEncoder;
+        this.cache = cacheManager.getCache("users");
+    }
+
     @Override
     public JwtDto register(UserRegisterDto userRegisterDto) {
         if (userRepository.findByEmail(userRegisterDto.getEmail()).isPresent())
             throw new AlreadyExistsException("User");
         if (!Objects.equals(userRegisterDto.getPassword(), userRegisterDto.getConfirmPassword()))
             throw new InvalidArgumentException("Password");
-        return new JwtDto(jwtTokenProvider.generateToken(userRepository.save(
+        User user = userRepository.save(
                 User.builder()
                         .id(userRegisterDto.getId())
                         .isAdmin(false)
                         .password(passwordEncoder.encode(userRegisterDto.getPassword()))
                         .build()
-        )));
+        );
+        if (cache != null)
+            cache.put(user.getId(),user);
+        return new JwtDto(jwtTokenProvider.generateToken(user));
     }
 
     @Override
@@ -46,7 +58,10 @@ public class UserServiceImpl implements UserService {
         );
         if (!passwordEncoder.matches(userLoginDto.getPassword(),user.getPassword()))
             throw new InvalidArgumentException("Password");
-        return new JwtDto(jwtTokenProvider.generateToken(user));
+        String accessToken = jwtTokenProvider.generateToken(user);
+        if (cache != null)
+            cache.put(user.getId(),user);
+        return new JwtDto(accessToken);
     }
 
     @Override
@@ -54,15 +69,15 @@ public class UserServiceImpl implements UserService {
         User existingUser = userRepository.findById(user.getId()).orElseThrow(
                 () -> new NotFoundException("User")
         );
-        userRepository.save(
-                User.builder()
-                        .id(user.getId())
-                        .name(Validations.requireNonNullElse(user.getName(),existingUser.getName()))
-                        .password(Validations.requireNonNullElse(user.getPassword(),existingUser.getPassword()))
-                        .isAdmin(user.isAdmin() != existingUser.isAdmin() ? user.isAdmin() : existingUser.isAdmin())
-                        .build()
-        );
-
+        User updatedUser = User.builder()
+                .id(user.getId())
+                .name(Validations.requireNonNullElse(user.getName(), existingUser.getName()))
+                .password(Validations.requireNonNullElse(user.getPassword(), existingUser.getPassword()))
+                .isAdmin(user.isAdmin() != existingUser.isAdmin() ? user.isAdmin() : existingUser.isAdmin())
+                .build();
+        userRepository.save(updatedUser);
+        if (cache != null)
+            cache.put(updatedUser.getId(),updatedUser);
     }
 
     @Override
@@ -70,13 +85,20 @@ public class UserServiceImpl implements UserService {
         if (!userRepository.existsById(id))
             throw new NotFoundException("User");
         userRepository.deleteById(id);
+        if (cache != null)
+            cache.evict(id);
     }
 
     @Override
     public User getById(Long id) {
-        return userRepository.findById(id).orElseThrow(
-                () -> new NotFoundException("User")
-        );
+        if (cache != null){
+            if (cache.get(id,User.class) == null)
+                cache.put(id,userRepository.findById(id).orElseThrow(
+                        ()->new NotFoundException("User")
+                ));
+            return cache.get(id,User.class);
+        }
+        throw new NotFoundException("User");
     }
 
     @Override

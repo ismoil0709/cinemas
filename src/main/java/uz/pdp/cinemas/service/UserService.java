@@ -1,6 +1,5 @@
 package uz.pdp.cinemas.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import uz.pdp.cinemas.dto.JwtDto;
 import uz.pdp.cinemas.dto.UserLoginDto;

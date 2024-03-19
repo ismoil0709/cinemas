@@ -20,21 +20,23 @@ public class TicketServiceImpl implements TicketService {
             throw new InvalidArgumentException("Id");
         return ticketRepository.save(ticket);
     }
-
     @Override
     public Ticket getById(Long id) {
        return ticketRepository.findById(id).orElseThrow(
                 ()-> new NotFoundException("Ticket")
         );
     }
-
     @Override
     public List<Ticket> getAll() {
         return ticketRepository.findAll();
     }
-
     @Override
     public List<Ticket> getByUpcoming(boolean upcoming) {
-        return ticketRepository.getByUpcoming(upcoming);
+        return ticketRepository.findByUpcoming(upcoming);
+    }
+
+    @Override
+    public void download(Long id) {
+
     }
 }

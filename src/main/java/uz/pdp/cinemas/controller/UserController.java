@@ -1,61 +1,59 @@
 package uz.pdp.cinemas.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import uz.pdp.cinemas.dto.JwtDto;
 import uz.pdp.cinemas.dto.UserLoginDto;
 import uz.pdp.cinemas.dto.UserRegisterDto;
 import uz.pdp.cinemas.entity.User;
-import uz.pdp.cinemas.exception.NotFoundException;
-import uz.pdp.cinemas.repository.UserRepository;
-import uz.pdp.cinemas.service.impl.UserServiceImpl;
+import uz.pdp.cinemas.service.UserService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("${api.version}/user")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserServiceImpl userServiceImpl;
-    private final UserRepository userRepository;
+    private final UserService userService;
     @PostMapping("/register")
-    public ResponseEntity<JwtDto> register (@RequestBody UserRegisterDto registerDto){
-        JwtDto jwtDto = userServiceImpl.register(registerDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(jwtDto);
+    public ResponseEntity<JwtDto> register (@RequestBody @Valid UserRegisterDto registerDto){
+        return ResponseEntity.ok(userService.register(registerDto));
     }
-
     @PostMapping("/login")
-    public ResponseEntity<JwtDto> login (@RequestBody UserLoginDto loginDto){
-        JwtDto jwtDto = userServiceImpl.login(loginDto);
-        return ResponseEntity.status(HttpStatus.OK).body(jwtDto);
+    public ResponseEntity<JwtDto> login(@RequestBody @Valid UserLoginDto loginDto){
+        return ResponseEntity.ok(userService.login(loginDto));
     }
-
-    @GetMapping("/getId {id}")
-    public ResponseEntity<User> getUserById (@PathVariable Long id){
-        User user = userServiceImpl.getById(id);
-        return ResponseEntity.ok(user);
+    @PutMapping("/update")
+    public ResponseEntity<?> update(@RequestBody @Valid User user){
+        userService.update(user);
+        return ResponseEntity.ok(Map.of("message","Successfully"));
     }
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable @NotNull Long id){
+        userService.delete(id);
+        return ResponseEntity.ok(Map.of("message","Successfully"));
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getById(@PathVariable @NotNull Long id){
+        return ResponseEntity.ok(userService.getById(id));
+    }
     @GetMapping("/getAll")
-    public ResponseEntity<List<User>> getUserAll (){
-        List<User> users = userServiceImpl.getAll();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<List<User>> getAll(){
+        return ResponseEntity.ok(userService.getAll());
     }
-
-    @PutMapping("/update {id}")
-    public ResponseEntity<String> updateUser (@PathVariable Long id){
-        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found"));
-        userServiceImpl.update(user);
-        return ResponseEntity.ok("User updated successfully");
+    @GetMapping("/like")
+    public void like(){
+        //todo like
     }
-
-    @DeleteMapping("/delete {id}")
-    public ResponseEntity<String> deleteUser (@PathVariable Long id){
-        userServiceImpl.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("User deleted successfully");
-    }
-
-
 }

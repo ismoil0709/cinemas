@@ -1,59 +1,52 @@
 package uz.pdp.cinemas.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import uz.pdp.cinemas.entity.Theater;
-import uz.pdp.cinemas.exception.NotFoundException;
-import uz.pdp.cinemas.repository.TheaterRepository;
-import uz.pdp.cinemas.service.impl.TheaterServiceImpl;
+import uz.pdp.cinemas.service.TheaterService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/theater")
+@RequestMapping("${api.version}/theater")
 @RequiredArgsConstructor
 public class TheaterController {
-    private final TheaterServiceImpl theaterServiceImpl;
-    private final TheaterRepository theaterRepository;
-
+    private final TheaterService theaterService;
     @PostMapping("/create")
-    public ResponseEntity<Theater> create(@RequestBody Theater theater){
-        Theater theater1 = theaterServiceImpl.save(theater);
-        return ResponseEntity.status(HttpStatus.CREATED).body(theater1);
+    public ResponseEntity<Theater> create(@RequestBody @Valid Theater theater){
+        return ResponseEntity.ok(theaterService.save(theater));
     }
-
-    @GetMapping("getId {id}")
-    public ResponseEntity<Theater> getById(@PathVariable Long id){
-        Theater theater = theaterServiceImpl.getById(id);
-        return ResponseEntity.ok(theater);
+    @PutMapping("/update")
+    public ResponseEntity<Theater> update(@RequestBody @Valid Theater theater){
+        return ResponseEntity.ok(theaterService.update(theater));
     }
-
-    @GetMapping("/getName {name}")
-    public ResponseEntity<Theater> getByName (@PathVariable String name){
-        Theater theater = theaterServiceImpl.getByName(name);
-        return ResponseEntity.ok(theater);
-    }
-
-    @GetMapping("/getAll")
-    public ResponseEntity<List<Theater>> getAll (){
-        List<Theater> theaters = theaterServiceImpl.getAll();
-        return ResponseEntity.ok(theaters);
-    }
-
-    @PutMapping("/update {id}")
-    public ResponseEntity<Theater> update(@PathVariable Long id){
-        Theater theater = theaterRepository.findById(id).orElseThrow(() -> new NotFoundException("Theater not found"));
-        Theater theater1 = theaterServiceImpl.update(theater);
-        return ResponseEntity.ok(theater1);
-    }
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Long id){
-        theaterServiceImpl.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Theater deleted successfully");
+    public ResponseEntity<?> delete(@PathVariable @NotNull Long id){
+        theaterService.delete(id);
+        return ResponseEntity.ok(Map.of("message","Successfully"));
     }
-
-
+    @GetMapping("/{id}")
+    public ResponseEntity<Theater> getById(@PathVariable @NotNull Long id){
+        return ResponseEntity.ok(theaterService.getById(id));
+    }
+    @GetMapping("/all")
+    public ResponseEntity<List<Theater>> getAll(){
+        return ResponseEntity.ok(theaterService.getAll());
+    }
+    @GetMapping("/name/{name}")
+    public ResponseEntity<Theater> getByName(@PathVariable @NotBlank String name){
+        return ResponseEntity.ok(theaterService.getByName(name));
+    }
 }
